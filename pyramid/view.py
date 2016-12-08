@@ -243,6 +243,103 @@ class view_defaults(view_config):
         wrapped.__view_defaults__ = self.__dict__.copy()
         return wrapped
 
+
+def routed_view_config(func, pattern, route_name=None, view_name=None, factory=None, renderer=None, **kwargs):
+    """ A function :term:`decorator` allowing a
+    developer to create simple view and routing configuration with a decorator.
+
+    This is a :term:`configuration decoration` that
+    wraps a :term:`view callable` function and configures
+    view and routing arguments for it. The module having this
+    function must be scanned via :py:meth:`pyramid.config.Configurator.scan`.
+
+    This decorator is intended to be used with
+    :ref:`URL dispatch views <_urldispatch_chapter>`
+    only. For traversable views you should use
+    :py:func:`pyramid.view.view_config`.
+
+    **Minimal usage example**
+
+    For example, this code could in a module ``myapp.views.py``:
+
+    .. code-block:: python
+
+      from pyramid.view import routed_view_config
+
+
+      @routed_view_config('/')
+      def home(request):
+          return 'OK'
+
+    Then in ``__init__.py`` or similar place where you set up your
+    Pyramid application you need to:
+
+    .. code-block:: python
+
+        config.scan('myapp.views')
+
+    **Rendering views with templates**
+
+    Pass ``renderer``:
+
+    .. code-block:: python
+
+      from pyramid.view import routed_view_config
+
+      @routed_view_config('/', renderer="info.pt")
+      def info(request):
+          return {"project_name": "Foobar"}
+
+    .. warning::
+
+        ``routed_view_config`` does not handle multiple routes and
+        multiple views. An exception is raised in the case there
+        are conflicting routes.
+
+    .. seealso::
+
+        :py:meth:`pyramid.config.Configurator.add_route`
+
+        :py:meth:`pyramid.config.Configurator.add_view`
+
+        :py:func:`pyramid.view.view_config`
+
+    Below is a description of most commonly used arguments. Any other arguments through ``kwargs``
+    pattern are passed to :py:meth:`pyramid.config.Configurator.add_view`.
+
+    :param pattern:
+        Required. Equals to ``pattern`` in :py:meth:`pyramid.config.Configurator.add_route`.
+        This can be a simple path like ``/my-view`` or one with the patters like ``/my-location/{item}``.
+        For pattern usage see :ref:`matchdict`.
+
+    :param view_name:
+        Optional. If ``view_name`` is not given the function name is used.
+        Equals to ``name`` in :py:meth:`pyramid.config.Configurator.add_view`
+
+    :param route_name:
+        Optional. If ``route_name`` is not given the function name is used.
+
+    :param factory:
+        Route factory.
+        Optional. Equals to ``factory`` in :py:meth:`pyramid.config.Configurator.add_route`
+
+    :param renderer:
+        View renderer.
+        Optional. Equals to ``add_view`` in :py:meth:`pyramid.config.Configurator.add_view`
+
+    :param decorator:
+        View decorator.
+        Optional. Equals to ``decorator`` in :py:meth:`pyramid.config.Configurator.add_view`
+
+    :param permission:
+        Permission name required to access the view.
+        Optional. Equals to ``permission`` in :py:meth:`pyramid.config.Configurator.add_view`
+
+    :raise ConflictingRouteConfiguration:
+        In the case there is already a route registered with a same name
+    """
+    pass
+
 class AppendSlashNotFoundViewFactory(object):
     """ There can only be one :term:`Not Found view` in any
     :app:`Pyramid` application.  Even if you use
